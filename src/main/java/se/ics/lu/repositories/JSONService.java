@@ -19,6 +19,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 public class JSONService {
+
+    public static ObjectMapper objectMapper = new ObjectMapper();
+
     public static void createNewTaskJson() {
         File taskJson = new File(PathsUrl.jsonPath);
         try {
@@ -33,7 +36,6 @@ public class JSONService {
     }
 
     public static void taskListToJson(ArrayList<Task> tasks) {
-        ObjectMapper objectMapper = new ObjectMapper();
         ArrayNode arrayNode = objectMapper.createArrayNode();
 
         for (Task t : tasks) {
@@ -57,41 +59,45 @@ public class JSONService {
     }
 
     public static void addTaskToJson(Task task) {
-        ObjectMapper mapper = new ObjectMapper();
+
         File file = new File(PathsUrl.jsonPath);
-
         ArrayNode arrayNode;
-
         try {
             if (file.exists() && file.length() > 0) {
-                arrayNode = (ArrayNode) mapper.readTree(file);
+                arrayNode = (ArrayNode) objectMapper.readTree(file);
             } else {
-                arrayNode = mapper.createArrayNode();
+                arrayNode = objectMapper.createArrayNode();
             }
-
-            ObjectNode taskNode = mapper.createObjectNode();
+            ObjectNode taskNode = objectMapper.createObjectNode();
             taskNode.put("id", task.getId());
             taskNode.put("description", task.getDescription());
             taskNode.put("status", task.getStatus());
             taskNode.put("createdAt", task.getCreatedAt().toString());
             taskNode.put("updatedAt", task.getUpdatedAt().toString());
             arrayNode.add(taskNode);
-            mapper.writeValue(file, arrayNode);
+            objectMapper.writeValue(file, arrayNode);
             System.out.println("Task added to JSON: " + task.getId());
-
         } catch (IOException e) {
             System.out.println("Error appending task to JSON: " + e.getMessage());
         }
     }
 
-    public static List<Task> getTasksFromJson() throws Exception {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.registerModule(new JavaTimeModule()); // this line is key
+    public static List<Task> getTasksFromJson() {
+        try {
 
-    Path jsonPath = Paths.get("C:\\\\Users\\\\simon\\\\Documents\\\\GitHub\\\\TaskTracker\\\\src\\\\main\\\\java\\\\se\\\\ics\\\\lu\\\\resources\\\\taskList.json");
-    String jsonContent = new String(Files.readAllBytes(jsonPath), StandardCharsets.UTF_8);
+            objectMapper.registerModule(new JavaTimeModule()); // this line is key
+            Path jsonPath = Paths.get(
+                    "C:\\\\Users\\\\simon\\\\Documents\\\\GitHub\\\\TaskTracker\\\\src\\\\main\\\\java\\\\se\\\\ics\\\\lu\\\\resources\\\\taskList.json");
+            String jsonContent = new String(Files.readAllBytes(jsonPath), StandardCharsets.UTF_8);
 
-    return mapper.readValue(jsonContent, new TypeReference<List<Task>>() {});
-}
+            return objectMapper.readValue(jsonContent, new TypeReference<List<Task>>() {
+            });
+        } catch (Exception ex)
+        {
+            System.out.println(ex.getMessage());
+        }
+
+        return new ArrayList<Task>();
+    }
 
 }

@@ -4,11 +4,17 @@ import se.ics.lu.models.Task;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TaskRepository {
+public class TaskRepository implements Listenable {
 
     public List<Task> tasks = new ArrayList<Task>();
     public ArrayList<Task> completedTasks = new ArrayList<Task>();
     public ArrayList<Task> uncompletedTasks = new ArrayList<Task>();
+
+
+    public void onTasksChanged() {
+        clearLists();
+        loadLists();
+    }
 
     public TaskRepository() {
         try {
@@ -19,15 +25,13 @@ public class TaskRepository {
 
     }
 
-    public void clearLists()
-    {
+    public void clearLists() {
         tasks.clear();
         completedTasks.clear();
         uncompletedTasks.clear();
     }
 
-    public void loadLists()
-    {
+    public void loadLists() {
         try {
             tasks = JSONService.getTasksFromJson();
 
@@ -63,7 +67,7 @@ public class TaskRepository {
 
     public void printTasks() throws Exception {
         List<Task> viewList = tasks;
-    
+
         for (Task t : viewList) {
             System.out.println("Task ID: " + t.getId());
             System.out.println("Description: " + t.getDescription());
@@ -74,28 +78,27 @@ public class TaskRepository {
 
     public void printCompletedTasks() throws Exception {
         List<Task> viewList = completedTasks;
-    
+
         for (Task t : viewList) {
             System.out.println("Task ID: " + t.getId());
             System.out.println("Description: " + t.getDescription());
             System.out.println("Status: " + t.getStatus());
             System.out.println(); // For spacing between tasks
         }
-        
+
     }
 
     public void printUnfinishedTasks() throws Exception {
         List<Task> viewList = uncompletedTasks;
-    
+
         for (Task t : viewList) {
             System.out.println("Task ID: " + t.getId());
             System.out.println("Description: " + t.getDescription());
             System.out.println("Status: " + t.getStatus());
             System.out.println(); // For spacing between tasks
         }
-        
-    }
 
+    }
 
     public List<Task> getTasks() {
         return tasks;
@@ -120,4 +123,6 @@ public class TaskRepository {
     public void setUncompletedTasks(ArrayList<Task> uncompletedTasks) {
         this.uncompletedTasks = uncompletedTasks;
     }
+
+
 }
